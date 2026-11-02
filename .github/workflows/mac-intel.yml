@@ -1,5 +1,10 @@
 name: Verify Intel Mac native tools
 on:
+  pull_request:
+    paths:
+      - 'server/**'
+      - 'vendor/**'
+      - '.github/workflows/mac-intel.yml'
   push:
     branches: [main]
     paths:
