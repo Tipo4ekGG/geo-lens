@@ -16,10 +16,11 @@ def sandbox_profile(job,cache,python,root=ROOT):
  write=[job,cache]
  read_filters=' '.join(f'(subpath {quote(p.resolve())})' for p in read)
  write_filters=' '.join(f'(subpath {quote(p.resolve())})' for p in write)
- # Keep standard macOS runtime operations (including anonymous executable maps),
- # while restricting file contents and writes with explicit path allowlists.
- # Runtime loaders need metadata on ancestor directories, including / and /Users.
- return '\n'.join(['(version 1)','(allow default)',f'(deny file-read-data (require-not (require-any {read_filters})))',f'(deny file-write* (require-not (require-any {write_filters} (literal "/dev/null") (subpath "/dev/fd"))))'])+'\n'
+ # Keep macOS system runtime reads available (dyld uses OS-managed paths).
+ # Deny private user data except the explicit tool/job/cache allowlist.
+ private=[Path('/Users'),Path('/Volumes'),Path('/private/tmp'),Path('/private/var/folders'),Path.home()]
+ private_filters=' '.join(f'(subpath {quote(p.resolve())})' for p in private)
+ return '\n'.join(['(version 1)','(allow default)',f'(deny file-read-data (require-all (require-any {private_filters}) (require-not (require-any {read_filters}))))',f'(deny file-write* (require-not (require-any {write_filters} (literal "/dev/null") (subpath "/dev/fd"))))'])+'\n'
 
 
 def tool_env(job,cache,python):
