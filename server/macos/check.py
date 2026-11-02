@@ -10,7 +10,12 @@ with tempfile.TemporaryDirectory(dir=state) as temp:
  runner=NativeRunner(Path(temp),'preflight',print,lambda:False,time.monotonic()+120)
  output=runner.run('doctor.py',['--json'])
  try:report=json.loads(output['output'])
- except ValueError:raise SystemExit('Проверка инструментов не прошла (код '+str(output.get('returncode'))+'):\n'+output['output'])
+ except ValueError:
+  policy=(Path(temp)/'tool.sb').read_text()
+  for name,rules in [('runtime', '(version 1)\n(allow default)\n'),('read-boundary','\n'.join(x for x in policy.splitlines() if '(deny file-write*' not in x)),('write-boundary','\n'.join(x for x in policy.splitlines() if '(deny file-read*' not in x))]:
+   diagnostic=subprocess.run(['/usr/bin/sandbox-exec','-p',rules,str(runner.python),'-c',"print('runtime-probe')"],env=tool_env(runner.job,cache,runner.python),capture_output=True,text=True,timeout=15)
+   print(name+': rc='+str(diagnostic.returncode)+' stdout='+diagnostic.stdout[:200]+' stderr='+diagnostic.stderr[:2000])
+  raise SystemExit('Проверка инструментов не прошла (код '+str(output.get('returncode'))+'):\n'+output['output'])
  for item in report['checks']:print(item['status']+': '+item['name']+' — '+item['detail'])
  browser=next((c for c in report['checks'] if c['name']=='Reverse-search browser'),{})
  if not report.get('ok') or browser.get('status')!='PASS':raise SystemExit('Браузер или зависимости пока не работают. Сохраните текст ошибки для диагностики.')
