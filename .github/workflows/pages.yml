@@ -1,5 +1,6 @@
 name: Deploy GitHub Pages
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
@@ -23,8 +24,21 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: public
+  server-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: server/requirements.txt
+      - run: pip install -r server/requirements.txt numpy==2.2.6
+      - run: python -m unittest discover -s server/tests -v
+      - run: bash -n server/deploy/install.sh server/deploy/egress.sh
   deploy:
-    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: [build, server-tests]
     runs-on: ubuntu-latest
     permissions:
       pages: write

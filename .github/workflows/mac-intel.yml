@@ -1,0 +1,42 @@
+name: Verify Intel Mac native tools
+on:
+  pull_request:
+    paths:
+      - 'server/**'
+      - 'vendor/**'
+      - '.github/workflows/mac-intel.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'vendor/**'
+      - '.github/workflows/mac-intel.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  intel-native:
+    runs-on: macos-15-intel
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.9.5'
+      - name: Install native Intel Python environments
+        run: |
+          uv python install 3.11
+          uv venv --python 3.11 .venv-api
+          uv venv --python 3.11 .venv-tools
+          uv pip install --python .venv-api/bin/python -r server/requirements.txt numpy==1.26.4
+          uv pip install --python .venv-tools/bin/python --no-deps -r server/macos/tools.lock
+          uv pip install --python .venv-tools/bin/python pyobjc-framework-Vision==10.3.2 pyobjc-framework-Quartz==10.3.2
+          PLAYWRIGHT_BROWSERS_PATH="$HOME/Library/Caches/GeoLens/browsers" .venv-tools/bin/python -m playwright install chromium
+      - name: Verify old Intel ML packages can import
+        run: .venv-tools/bin/python -c "import torch, cv2, onnxruntime; from transformers import AutoModel, CLIPModel; assert torch.__version__.startswith('2.2.2'); print('Intel ML imports OK')"
+      - name: Test Python API and native runner contracts
+        run: .venv-api/bin/python -m unittest discover -s server/tests -v
+      - name: Verify Chromium and original skill inside macOS sandbox
+        run: |
+          chmod +x server/macos/uv-native
+          .venv-api/bin/python -m server.macos.check

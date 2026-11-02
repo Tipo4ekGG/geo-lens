@@ -1,0 +1,35 @@
+# Runtime dependencies resolved for Python 3.12 / Linux ARM64.
+# OpenCV uses only the headless distribution; RapidOCR imports the same cv2 module.
+certifi==2026.10.23
+charset-normalizer==3.5.2
+filelock==4.2.7
+flatbuffers==25.12.19
+fsspec==2026.9.0
+greenlet==3.5.6
+hf-xet==1.8.0
+huggingface-hub==0.36.2
+idna==3.20
+numpy==2.5.4
+onnxruntime==1.31.1
+opencv-python-headless==4.14.0.94
+packaging==26.3
+pillow==11.3.0
+pillow-heif==1.8.1
+playwright==1.56.0
+protobuf==7.36.2
+pyclipper==1.4.0
+pyee==13.0.1
+pysocks==1.7.1
+pyyaml==6.0.3
+rapidocr-onnxruntime==1.4.4
+regex==2026.9.29
+requests==2.34.2
+safetensors==0.8.0
+shapely==2.2.0
+six==1.17.0
+socksio==1.0.0
+tokenizers==0.22.2
+tqdm==4.70.1
+transformers==4.57.6
+typing-extensions==4.16.0
+urllib3==2.8.0

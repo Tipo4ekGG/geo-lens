@@ -1,0 +1,16 @@
+[Unit]
+Description=Geo Lens full geo-sleuth API
+Requires=docker.service geo-lens-egress.service
+After=network-online.target docker.service geo-lens-egress.service
+[Service]
+User=geolens
+Group=geolens
+SupplementaryGroups=docker
+WorkingDirectory=/opt/geo-lens
+EnvironmentFile=/etc/geo-lens/server.env
+ExecStart=/opt/geo-lens/.venv/bin/uvicorn server.app:app --host 127.0.0.1 --port 8080 --workers 1 --no-access-log
+Restart=on-failure
+RestartSec=5
+UMask=0077
+[Install]
+WantedBy=multi-user.target
