@@ -1,5 +1,5 @@
 import * as exifr from 'exifr';
-const $=id=>document.getElementById(id);let photo=null,metadata={},report=null,tab='overview',busy=false,objectUrl=null,job=0;let apiPath=localStorage.getItem('geo-api-path')||'/v1';$('apiPath').value=apiPath;$('backendUrl').value=localStorage.getItem('geo-worker-url')||'';$('model').value=localStorage.getItem('geo-model')||'';
+const $=id=>document.getElementById(id);let photo=null,metadata={},report=null,tab='overview',busy=false,objectUrl=null,job=0;let apiPath=localStorage.getItem('geo-api-path')||'/v1';$('apiPath').value=apiPath;$('backendUrl').value=localStorage.getItem('geo-worker-url')||'https://geo-lens-api.iga44.workers.dev';$('model').value=localStorage.getItem('geo-model')||'';
 function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
 function error(message){$('error').hidden=!message;$('error').textContent=message||''}
 function val(v){if(v instanceof Date)return Number.isNaN(v.getTime())?'—':v.toLocaleString('ru-RU');if(Array.isArray(v))return v.join(', ');return String(v??'—')}
