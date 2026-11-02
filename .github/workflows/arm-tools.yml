@@ -1,0 +1,20 @@
+name: Verify Oracle ARM64 tool image
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  arm64-tools:
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build native ARM64 image
+        run: docker build -f server/tool.Dockerfile -t geo-lens-tools:ci .
+      - name: Check native modules without model downloads
+        run: docker run --rm --network none geo-lens-tools:ci python -c "import torch, cv2, rapidocr_onnxruntime; from transformers import AutoModel, CLIPModel; print('CPU tool dependencies import successfully')"
+      - name: Check Chromium and bundled data offline
+        run: |
+          mkdir -p "$RUNNER_TEMP/geo-job"
+          chmod 777 "$RUNNER_TEMP/geo-job"
+          docker run --rm --network none --shm-size 512m --read-only --tmpfs /tmp:rw,size=1g --tmpfs /cache:rw,size=1g,mode=1777 -v "$RUNNER_TEMP/geo-job:/work" geo-lens-tools:ci python /opt/skill/scripts/doctor.py --json

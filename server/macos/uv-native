@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""Adapter for upstream child uv run calls; uses the pinned tool environment."""
+import os,sys
+from pathlib import Path
+args=sys.argv[1:]
+if len(args)<2 or args[0]!='run':raise SystemExit('Only bundled uv run scripts are allowed')
+root=Path(os.environ['GEO_TOOL_ROOT']).resolve();script=Path(args[1]).resolve()
+if script.parent!=root/'scripts' or not script.is_file():raise SystemExit('Only bundled skill scripts are allowed')
+python=os.environ['GEO_TOOL_PYTHON'];os.execv(python,[python,os.environ['GEO_TOOL_BOOTSTRAP'],script.name,*args[2:]])

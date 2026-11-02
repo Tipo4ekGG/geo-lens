@@ -6,3 +6,7 @@ dist/
 public/
 .wrangler/
 .dev.vars
+.venv/
+__pycache__/
+*.pyc
+server.env

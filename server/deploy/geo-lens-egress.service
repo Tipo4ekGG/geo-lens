@@ -1,0 +1,11 @@
+[Unit]
+Description=Geo Lens tool container egress policy
+Requires=docker.service
+After=docker.service
+Before=geo-lens.service
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/geo-lens-egress
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target
