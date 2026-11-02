@@ -3,6 +3,8 @@
 import os,sys
 from pathlib import Path
 args=sys.argv[1:]
+if args==['--version']:
+ print('uv-native adapter 1 (pinned skill environment)');raise SystemExit(0)
 if len(args)<2 or args[0]!='run':raise SystemExit('Only bundled uv run scripts are allowed')
 root=Path(os.environ['GEO_TOOL_ROOT']).resolve();script=Path(args[1]).resolve()
 if script.parent!=root/'scripts' or not script.is_file():raise SystemExit('Only bundled skill scripts are allowed')
