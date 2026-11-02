@@ -14,7 +14,12 @@ def sandbox_profile(job,cache,python,root=ROOT):
  python_root=Path(python).resolve().parent.parent
  read=[Path('/System'),Path('/usr'),Path('/bin'),Path('/sbin'),Path('/Library'),Path('/private/etc'),Path('/private/var/db/timezone'),Path('/dev'),python_root,root/'.venv-tools',SKILL,root/'server',job,cache]
  write=[job,cache]
- return '\n'.join(['(version 1)','(deny default)','(allow process* mach-lookup sysctl-read ipc-posix* signal network*)','(allow file-read-metadata)',*[f'(allow file-read* (subpath {quote(p.resolve())}))' for p in read],*[f'(allow file-map-executable (subpath {quote(p.resolve())}))' for p in read if p not in [job,cache]],*[f'(allow file-write* (subpath {quote(p.resolve())}))' for p in write]])+'\n'
+ read_filters=' '.join(f'(subpath {quote(p.resolve())})' for p in read)
+ write_filters=' '.join(f'(subpath {quote(p.resolve())})' for p in write)
+ # Keep standard macOS runtime operations (including anonymous executable maps),
+ # while restricting data reads and writes with explicit path allowlists.
+ return '\n'.join(['(version 1)','(allow default)',f'(deny file-read* (require-not (require-any {read_filters})))',f'(deny file-write* (require-not (require-any {write_filters} (literal "/dev/null") (subpath "/dev/fd"))))'])+'\n'
+
 
 def tool_env(job,cache,python):
  # Only non-secret runtime settings are forwarded to skill subprocesses.
@@ -73,10 +78,10 @@ class NativeRunner(DockerRunner):
        p.wait(timeout=5)
    item['returncode']=p.returncode
    text=log.read_bytes()[-32000:].decode('utf8',errors='replace')
+   if not text and p.returncode!=0:text='Оператор завершился до вывода, код '+str(p.returncode)+'. Проверьте macOS sandbox и Python runtime.'
    if reason:text+='\n'+reason;item['returncode']=75
    item['output_file']=log.name
    return {'returncode':item['returncode'],'output':text,'log':log.name}
   finally:
    item['duration_seconds']=round(time.monotonic()-started,2)
    (self.job/'commands.json').write_text(json.dumps(self.trace,ensure_ascii=False,indent=2))
-

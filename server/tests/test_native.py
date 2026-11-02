@@ -12,7 +12,7 @@ class NativeTests(unittest.TestCase):
    self.assertEqual(env['GEO_DEVICE'],'cpu');self.assertEqual(env['OMP_NUM_THREADS'],'2')
  def test_sandbox_does_not_grant_entire_home_or_config_directory(self):
   profile=sandbox_profile(Path('/Users/test/jobs/one'),Path('/Users/test/cache'),Path('/tools/bin/python'),Path('/Users/test/project'))
-  self.assertIn('(deny default)',profile);self.assertNotIn('(subpath "/Users/test")',profile);self.assertNotIn('config.json',profile)
+  self.assertIn('(deny file-read* (require-not',profile);self.assertNotIn('(subpath "/Users/test")',profile);self.assertNotIn('config.json',profile)
   self.assertIn('/Users/test/jobs/one',profile);self.assertIn('/Users/test/project/.venv-tools',profile)
  def test_native_executes_original_operator_and_records_trace(self):
   with tempfile.TemporaryDirectory() as d,patch.dict(os.environ,{'NATIVE_CACHE':d+'/cache','TOOL_PYTHON':sys.executable}):
