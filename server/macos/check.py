@@ -12,7 +12,7 @@ with tempfile.TemporaryDirectory(dir=state) as temp:
  try:report=json.loads(output['output'])
  except ValueError:
   policy=(Path(temp)/'tool.sb').read_text()
-  for name,rules in [('runtime', '(version 1)\n(allow default)\n'),('read-boundary','\n'.join(x for x in policy.splitlines() if '(deny file-write*' not in x)),('write-boundary','\n'.join(x for x in policy.splitlines() if '(deny file-read*' not in x))]:
+  for name,rules in [('runtime', '(version 1)\n(allow default)\n'),('read-boundary','\n'.join(x for x in policy.splitlines() if '(deny file-write*' not in x)),('write-boundary','\n'.join(x for x in policy.splitlines() if '(deny file-read-data' not in x))]:
    diagnostic=subprocess.run(['/usr/bin/sandbox-exec','-p',rules,str(runner.python),'-c',"print('runtime-probe')"],env=tool_env(runner.job,cache,runner.python),capture_output=True,text=True,timeout=15)
    print(name+': rc='+str(diagnostic.returncode)+' stdout='+diagnostic.stdout[:200]+' stderr='+diagnostic.stderr[:2000])
   raise SystemExit('Проверка инструментов не прошла (код '+str(output.get('returncode'))+'):\n'+output['output'])
