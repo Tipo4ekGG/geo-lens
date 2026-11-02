@@ -1,0 +1,15 @@
+{
+  "name": "geo-lens",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node --test tests.mjs"
+  },
+  "dependencies": {
+    "exifr": "7.1.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}
