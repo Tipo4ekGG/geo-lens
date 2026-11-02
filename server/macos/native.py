@@ -17,8 +17,9 @@ def sandbox_profile(job,cache,python,root=ROOT):
  read_filters=' '.join(f'(subpath {quote(p.resolve())})' for p in read)
  write_filters=' '.join(f'(subpath {quote(p.resolve())})' for p in write)
  # Keep standard macOS runtime operations (including anonymous executable maps),
- # while restricting data reads and writes with explicit path allowlists.
- return '\n'.join(['(version 1)','(allow default)',f'(deny file-read* (require-not (require-any {read_filters})))',f'(deny file-write* (require-not (require-any {write_filters} (literal "/dev/null") (subpath "/dev/fd"))))'])+'\n'
+ # while restricting file contents and writes with explicit path allowlists.
+ # Runtime loaders need metadata on ancestor directories, including / and /Users.
+ return '\n'.join(['(version 1)','(allow default)',f'(deny file-read-data (require-not (require-any {read_filters})))',f'(deny file-write* (require-not (require-any {write_filters} (literal "/dev/null") (subpath "/dev/fd"))))'])+'\n'
 
 
 def tool_env(job,cache,python):
