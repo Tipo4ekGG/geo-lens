@@ -72,9 +72,9 @@ class DockerRunner:
 
 def read_tool(job,path,offset=0):
  if path.startswith('skill/'):
-  p=confined(SKILL,path[6:]);root=SKILL
+  p=confined(SKILL,path[6:]);root=SKILL.resolve()
  else:
-  p=confined(job,path.removeprefix('job/').removeprefix('/work/'));root=job
+  p=confined(job,path.removeprefix('job/').removeprefix('/work/'));root=job.resolve()
  if not p.is_file() or p.stat().st_size>8_000_000:raise ValueError('Файл отсутствует или слишком большой')
  text=p.read_text(encoding='utf8',errors='replace')[max(0,int(offset)):max(0,int(offset))+18000]
  return {'path':str(p.relative_to(root)),'content':text,'next_offset':max(0,int(offset))+len(text),'size_bytes':p.stat().st_size}
