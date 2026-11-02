@@ -2,6 +2,17 @@
   "name": "geo-lens-api",
   "main": "dist/worker.js",
   "compatibility_date": "2026-11-02",
-  "observability": {"enabled": true, "traces": {"enabled": true}},
-  "vars": {"PHOTO_API_ORIGIN": "https://freecodex.fun", "ALLOWED_ORIGIN": "https://tipo4ekgg.github.io"}
+  "observability": {
+    "enabled": true,
+    "traces": {
+      "enabled": true
+    }
+  },
+  "vars": {
+    "PHOTO_API_ORIGIN": "https://freecodex.fun",
+    "ALLOWED_ORIGIN": "https://tipo4ekgg.github.io"
+  },
+  "build": {
+    "command": "npm run build"
+  }
 }
